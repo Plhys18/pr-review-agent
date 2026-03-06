@@ -1,0 +1,41 @@
+name: AI Code Review
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr_url:
+        description: "GitHub PR URL (e.g. https://github.com/owner/repo/pull/123)"
+        required: true
+        type: string
+      post_review:
+        description: "Post review as a comment on the PR"
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install .
+
+      - name: Run review agent
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          ARGS="${{ inputs.pr_url }}"
+          if [ "${{ inputs.post_review }}" = "true" ]; then
+            ARGS="$ARGS --post"
+          fi
+          pr-review $ARGS
