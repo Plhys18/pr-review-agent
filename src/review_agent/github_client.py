@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 
-from github import Github
+from github import Auth, Github
 from github.PullRequest import PullRequest
 
 from review_agent.models import FileDiff, PRInfo, ReviewFinding, ReviewResult
@@ -10,7 +10,7 @@ from review_agent.models import FileDiff, PRInfo, ReviewFinding, ReviewResult
 
 class GitHubClient:
     def __init__(self, token: str):
-        self.gh = Github(token)
+        self.gh = Github(auth=Auth.Token(token))
 
     def parse_pr_url(self, url: str) -> tuple[str, str, int]:
         """Extract owner, repo, and PR number from a GitHub PR URL."""
